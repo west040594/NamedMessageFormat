@@ -1,10 +1,12 @@
 package com.accenture;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 import java.text.MessageFormat;
 import java.util.*;
@@ -15,23 +17,26 @@ import java.util.concurrent.Future;
 /**
  * Тестирование класса NamedMessageFormat {@link NamedMessageFormat}
  */
-@RunWith(JUnit4.class)
 public class NamedMessageFormatTest {
 
     private String messageFormatPattern;
     private String namedMessageFormatPattern;
+    private String namedMessageFormatPatternCorrupt;
     private Object[] messageFormatParam;
     private Map<String, Object> namedMessageFormatParam;
     private MessageFormat messageFormat;
     private NamedMessageFormat namedMessageFormat;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Date date = new Date();
         messageFormatPattern = "Test Date: {0, time, dd.MM.yyyy}. Test Integer: {2, number, integer}. " +
                 "Test Percent: {1, number, percent}";
         namedMessageFormatPattern = "Test Date: {myDate, time, dd.MM.yyyy}. Test Integer: " +
                 "{simpleInt, number, integer}. Test Percent: {numberPercent, number, percent}";
+
+        namedMessageFormatPatternCorrupt = "Test Date: {!myDate, time, dd.MM.yyyy}. Test Integer: " +
+                "{213simpleInt, number, integer}. Test Percent: {..numberPercent, number, percent}";
 
         //Параметры для MessageFormat
         messageFormatParam = new Object[]{date, 1, 100};
@@ -54,17 +59,17 @@ public class NamedMessageFormatTest {
      * Тестиирование метод format на корректность
      */
     @Test
-    public void format() {
+    public void format() throws NamedMessageFormatException {
         //Замена параметров в строке на значения
         String messageFormatStr = messageFormat.format(messageFormatParam);
-        String namedMessageFormatStr = null;
-        try {
-            namedMessageFormatStr = namedMessageFormat.format(namedMessageFormatParam);
-        } catch (NamedMessageFormatException e) {
-            e.printStackTrace();
-        }
+        String namedMessageFormatStr = namedMessageFormat.format(namedMessageFormatParam);
         //Сравнение результатов вывода MessageFormat и NamedMessageFormat
-        Assert.assertEquals(messageFormatStr, namedMessageFormatStr);
+        assertEquals(messageFormatStr, namedMessageFormatStr);
+
+        namedMessageFormat = new NamedMessageFormat(namedMessageFormatPatternCorrupt);
+        assertThrows(NamedMessageFormatException.class, () -> {
+            namedMessageFormat.format(namedMessageFormatParam);
+        });
     }
 
     /**
@@ -78,7 +83,7 @@ public class NamedMessageFormatTest {
         Collection<Future<String>> futures = new ArrayList<>(threadsSize);
 
         //Выполняем метод format для всех потоков
-        for (int t = 0; t < threadsSize; ++t) {
+        for (int t = 0; t < threadsSize; t++) {
             futures.add(service.submit(() -> namedMessageFormat.format(namedMessageFormatParam)));
         }
         Thread.sleep(1000);
@@ -88,6 +93,6 @@ public class NamedMessageFormatTest {
             if(f.isDone()) successfulThreads++;
         }
         //Сравнение количества потоков с успешно выполненными
-        Assert.assertEquals(threadsSize, successfulThreads);
+        assertEquals(threadsSize, successfulThreads);
     }
 }
