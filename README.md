@@ -1,2 +1,2 @@
 # namedmessageformat
-mvn test
+run: mvn test
