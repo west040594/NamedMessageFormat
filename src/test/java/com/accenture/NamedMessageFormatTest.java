@@ -4,6 +4,10 @@ package com.accenture;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -17,6 +21,7 @@ import java.util.concurrent.Future;
 /**
  * Тестирование класса NamedMessageFormat {@link NamedMessageFormat}
  */
+@RunWith(JUnitPlatform.class)
 public class NamedMessageFormatTest {
 
     private String messageFormatPattern;
