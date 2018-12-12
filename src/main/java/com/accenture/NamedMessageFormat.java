@@ -45,7 +45,7 @@ public class NamedMessageFormat {
         ConcurrentMap<String, Object> namedArgumentsConcurrentMap = new ConcurrentHashMap<>(namedArguments);
         List<Object> arguments = new ArrayList<>();
         StringBuffer stringBuffer = new StringBuffer();
-        //Поиск совпадения
+
         Matcher paramMatcher = PARAM_PATTERN.matcher(pattern);
         for (int i = 0; paramMatcher.find(); i++) {
             //Найденый параметр формата {... , ... , ...}
@@ -61,7 +61,7 @@ public class NamedMessageFormat {
             //Замена первой части параметра(имени) на индекс
             String mathParamWithIndex =  mathParam.replace(mathParamFirst, String.valueOf(i));
 
-            //Если в коллекции Map сущестует ключс с соотвествующим параметром имени
+            //Если в коллекции Map сущестует ключ с соотвествующим параметром имени
             // то добавляем в список аргументов для MessageFormat
             if (namedArgumentsConcurrentMap.containsKey(mathParamFirst)) {
                 arguments.add(namedArgumentsConcurrentMap.get(mathParamFirst));

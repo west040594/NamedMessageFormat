@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -57,7 +58,6 @@ public class NamedMessageFormatTest {
 
         //Формируем NamedMessageFormat по паттерну с именами
         namedMessageFormat = new NamedMessageFormat(namedMessageFormatPattern);
-
     }
 
     /**
@@ -71,6 +71,7 @@ public class NamedMessageFormatTest {
         //Сравнение результатов вывода MessageFormat и NamedMessageFormat
         assertEquals(messageFormatStr, namedMessageFormatStr);
 
+        //Проверка на ожидаемое исключение, в случае некорректного параметра имени
         namedMessageFormat = new NamedMessageFormat(namedMessageFormatPatternCorrupt);
         assertThrows(NamedMessageFormatException.class, () -> {
             namedMessageFormat.format(namedMessageFormatParam);
@@ -82,7 +83,7 @@ public class NamedMessageFormatTest {
      * @throws InterruptedException Если какой либо поток прервал текущий
      */
     @Test
-    public void formatThreadSafe() throws InterruptedException {
+    public void formatThreadSafe() throws InterruptedException, ExecutionException {
         int threadsSize = 10;
         ExecutorService service = Executors.newFixedThreadPool(threadsSize);
         Collection<Future<String>> futures = new ArrayList<>(threadsSize);
@@ -92,6 +93,7 @@ public class NamedMessageFormatTest {
             futures.add(service.submit(() -> namedMessageFormat.format(namedMessageFormatParam)));
         }
         Thread.sleep(1000);
+
         //Суммируем успешно выполненные задачи потоков
         int successfulThreads = 0;
         for (Future<String> f : futures) {
