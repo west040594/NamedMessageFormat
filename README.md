@@ -1,0 +1,2 @@
+# namedmessageformat
+mvn test
