@@ -1,23 +1,17 @@
 package com.accenture;
 
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Тестирование класса NamedMessageFormat {@link NamedMessageFormat}
@@ -72,7 +66,7 @@ public class NamedMessageFormatTest {
         assertEquals(messageFormatStr, namedMessageFormatStr);
 
         //Проверка на ожидаемое исключение, в случае некорректного параметра имени
-        namedMessageFormat = new NamedMessageFormat(namedMessageFormatPatternCorrupt);
+        namedMessageFormat.setPattern(namedMessageFormatPatternCorrupt);
         assertThrows(NamedMessageFormatException.class, () -> {
             namedMessageFormat.format(namedMessageFormatParam);
         });
@@ -92,7 +86,7 @@ public class NamedMessageFormatTest {
         for (int t = 0; t < threadsSize; t++) {
             futures.add(service.submit(() -> namedMessageFormat.format(namedMessageFormatParam)));
         }
-        Thread.sleep(1000);
+        service.awaitTermination(1000, TimeUnit.MILLISECONDS);
 
         //Суммируем успешно выполненные задачи потоков
         int successfulThreads = 0;
